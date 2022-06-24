@@ -1,0 +1,6 @@
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\tocke\bin\Debug\tocke.dll
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\tocke\bin\Debug\tocke.pdb
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\tocke\obj\Debug\tocke.csproj.AssemblyReference.cache
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\tocke\obj\Debug\tocke.csproj.CoreCompileInputs.cache
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\tocke\obj\Debug\tocke.dll
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\tocke\obj\Debug\tocke.pdb

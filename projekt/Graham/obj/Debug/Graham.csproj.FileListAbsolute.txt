@@ -1,0 +1,10 @@
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Graham\bin\Debug\Graham.exe.config
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Graham\bin\Debug\Graham.exe
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Graham\bin\Debug\Graham.pdb
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Graham\bin\Debug\tocke.dll
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Graham\bin\Debug\tocke.pdb
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Graham\obj\Debug\Graham.csproj.AssemblyReference.cache
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Graham\obj\Debug\Graham.csproj.CoreCompileInputs.cache
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Graham\obj\Debug\Graham.csproj.CopyComplete
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Graham\obj\Debug\Graham.exe
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Graham\obj\Debug\Graham.pdb

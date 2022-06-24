@@ -1,0 +1,10 @@
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Jarvis\obj\Debug\Jarvis.csproj.AssemblyReference.cache
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Jarvis\obj\Debug\Jarvis.csproj.CoreCompileInputs.cache
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Jarvis\bin\Debug\Jarvis.exe.config
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Jarvis\bin\Debug\Jarvis.exe
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Jarvis\bin\Debug\Jarvis.pdb
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Jarvis\bin\Debug\tocke.dll
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Jarvis\bin\Debug\tocke.pdb
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Jarvis\obj\Debug\Jarvis.csproj.CopyComplete
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Jarvis\obj\Debug\Jarvis.exe
+C:\Users\Tomaž\Desktop\Vscode\programiranje 3\projekt\Jarvis\obj\Debug\Jarvis.pdb
