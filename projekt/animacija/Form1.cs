@@ -36,6 +36,8 @@ namespace animacija
         private void Okno_Load(object sender, EventArgs e)
         {
             start.Hide();
+            pospesi.Hide();
+            upocasni.Hide();
         }
 
         /// <summary>
@@ -69,6 +71,8 @@ namespace animacija
                 label2.Hide();
                 hitrost.Hide();
                 start.Show();
+                
+                
             }
             else
             {
@@ -239,8 +243,12 @@ namespace animacija
                 this.platno.DrawLine(svincnik, rob[n - 1].x + 5, rob[n - 1].y + 5, rob[0].x + 5, rob[0].y + 5);
             }
             //briše črte med iskalnimi točkami
-            this.platno.DrawLine(svincnik, pqr[0].x + 5, pqr[0].y + 5, pqr[1].x + 5, pqr[1].y + 5);
-            this.platno.DrawLine(svincnik, pqr[1].x + 5, pqr[1].y + 5, pqr[2].x + 5, pqr[2].y + 5);
+            if (pqr.Count != 0)
+            {
+                this.platno.DrawLine(svincnik, pqr[0].x + 5, pqr[0].y + 5, pqr[1].x + 5, pqr[1].y + 5);
+                this.platno.DrawLine(svincnik, pqr[1].x + 5, pqr[1].y + 5, pqr[2].x + 5, pqr[2].y + 5);
+            }
+            
         }
 
         /// <summary>
@@ -318,10 +326,10 @@ namespace animacija
         /// </summary>
         /// <param name="tocke"></param>
         /// <param name="rob"></param>
-        public void Graham_korak(List<Tocka> tocke)
+        public void Graham_korak()
         {
             int n = this.rob.Count();
-            if (Graham.Graham.Rotacija(this.rob[n-2], this.rob[n-1], tocke[this.graham_stevec]) <= 0) //rotacija v desno, moram izbrisat
+            if (Graham.Graham.Rotacija(this.rob[n-2], this.rob[n-1], this.tocke[this.graham_stevec]) <= 0) //rotacija v desno, moram izbrisat
             {
                 this.rob.RemoveAt(n - 1);
                 if (this.rob.Count == 1) //samo se ena točka, dodam točko, ki jo preverjam
@@ -333,7 +341,7 @@ namespace animacija
             else
             {
                 //konec brisanja, dodam točko, ki jo preverjam
-                this.rob.Add(tocke[this.graham_stevec]);
+                this.rob.Add(this.tocke[this.graham_stevec]);
                 this.graham_stevec++;
             }
         }
@@ -368,6 +376,191 @@ namespace animacija
         }
 
         /// <summary>
+        /// Narise naslednji korak pri algoritmu Graham scan.
+        /// </summary>
+        private void Graham_risi_korak()
+        {
+            List<Tocka> pqr = new List<Tocka> { this.rob[this.rob.Count - 2], this.rob[this.rob.Count - 1], this.tocke[this.graham_stevec] };
+            if (this.graham_vmesni) //dodal točko, nariše vmesno stanje
+            {
+                Risi_crte(this.rob, pqr);
+                Risi_tocke(this.tocke, this.rob, pqr);
+                this.graham_vmesni = false;
+            }
+            else if (this.graham_izbrisal) //izbrisal točko, nariše vmesno stanje
+            {
+                Risi_crte(this.rob, pqr);
+                Risi_tocke(this.tocke, this.rob, pqr);
+                this.graham_izbrisal = false;
+            }
+            else
+            {
+                Brisi_crte(this.rob, pqr, true);
+                //Narisi_legendo();
+
+                int st = this.graham_stevec;
+                int dolzina = rob.Count();
+                Graham_korak();
+                if (dolzina == rob.Count + 1) //izbrisal točko, v naslednjem koraku nariše vmesno stanje
+                {
+                    Risi_crte(this.rob, new List<Tocka> { });
+                    Risi_tocke(this.tocke, this.rob, new List<Tocka> { });
+                    this.graham_izbrisal = true;
+                }
+                else
+                {
+                    if (st == this.graham_stevec) //nariše ta korak
+                    {
+                        Risi_crte(this.rob, pqr);
+                        Risi_tocke(this.tocke, this.rob, pqr);
+                    }
+                    else //dodali novo točko v rob, v naslednjem koraku vmesno stanje
+                    {
+                        Risi_crte(this.rob, new List<Tocka> { });
+                        Risi_tocke(this.tocke, this.rob, new List<Tocka> { });
+                        this.graham_vmesni = true;
+                    }
+                }
+            }
+
+            if (this.graham_stevec == tocke.Count) //prišli do konca, ustavi izvajanje
+            {
+                timer1.Stop();
+                pospesi.Hide();
+                upocasni.Hide();
+                this.tece = false;
+                start.Text = "Zacetek";
+            }
+        }
+
+        private void Jarvis_korak_risi()
+        {
+            Tocka p = this.rob[this.rob.Count - 1];
+            if (this.jarvis_stevec == 0) //nastavi začeten q, r
+            {
+                //q, r ne smeta biti enaka p
+                if (p != this.tocke[0])
+                {
+                    this.jarvis_q = tocke[0];
+                    if (p != this.tocke[1])
+                    {
+                        this.jarvis_r = tocke[1];
+                        jarvis_stevec = 0;
+                    }
+                    else
+                    {
+                        this.jarvis_r = tocke[2];
+                        jarvis_stevec = 1;
+                    }
+                }
+                else
+                {
+                    this.jarvis_q = tocke[1];
+                    this.jarvis_r = tocke[2];
+                    jarvis_stevec = 1;
+                }
+
+                Risi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
+                Risi_tocke(this.tocke, this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
+            }
+
+            if (this.jarvis_stevec == this.tocke.Count - 1)//prišli do konca z iskanjem naslednje točke
+            {
+                if (!this.rob.Contains(this.jarvis_q)) //ni še v robu, doda
+                {
+                    if (this.rob.Count >= 2) //ali zbriše črte roba ali ne
+                    {
+                        Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, true);
+                        //Narisi_legendo();
+                    }
+                    else
+                    {
+                        Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
+                        //Narisi_legendo();
+                    }
+
+
+                    this.rob.Add(this.jarvis_q);
+                    this.jarvis_stevec = 0;
+                    Risi_crte(this.rob, new List<Tocka>());
+                    Risi_tocke(this.tocke, this.rob, new List<Tocka>());
+                }
+                else //naslednja točka že v robu, konča izvajanje
+                {
+                    //nariše končno stanje
+                    this.jarvis_stevec = 0;
+                    Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, true);
+                    //Narisi_legendo();
+                    Risi_crte(this.rob, new List<Tocka>());
+                    Risi_tocke(this.tocke, this.rob, new List<Tocka>());
+
+                    timer1.Stop();
+                    pospesi.Hide();
+                    upocasni.Hide();
+                    this.tece = false;
+                    start.Text = "Zacetek";
+                }
+            }
+            else //še v procesu iskanja naslednje točke
+            {
+                if (this.jarvis_sprememba) //nariše vmesno stanje, ko se spremeni točka q
+                {
+                    this.jarvis_sprememba = false;
+                    Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_prejsnji_q, this.jarvis_q }, false);
+                    //Narisi_legendo();
+                }
+
+                if (this.tocke[this.jarvis_stevec + 1] == p) //r bi bil enak p, kar ne sme biti
+                {
+                    if (this.jarvis_stevec + 2 != this.tocke.Count) //p ni zadnja točka v tabeli, lahko preskoči
+                    {
+                        Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
+                        //Narisi_legendo();
+                        //preskoči p
+                        this.jarvis_stevec = this.jarvis_stevec + 2;
+                        this.jarvis_r = this.tocke[this.jarvis_stevec];
+
+                        Risi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
+                        Risi_tocke(this.tocke, this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
+
+                        if (Jarvis.Jarvis.Rotacija(p, this.jarvis_q, this.jarvis_r) <= 0) //rotacija v desno, spremeni q, v naslednjem koraku vmesno stanje
+                        {
+                            this.jarvis_prejsnji_q = this.jarvis_q; //da ve v naslednjem koraku katere črte izbrisat
+                            this.jarvis_sprememba = true;
+                            this.jarvis_q = this.jarvis_r;
+
+                        }
+
+                    }
+                    else //smo na kncu tabele, ustavim iskanje naslednje točke
+                    {
+                        Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
+                        this.jarvis_stevec++;
+                    }
+                }
+                else // r ne bi bil enak p
+                {
+                    Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
+                    //Narisi_legendo();
+                    this.jarvis_stevec++;
+                    this.jarvis_r = this.tocke[this.jarvis_stevec];
+
+                    Risi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
+                    Risi_tocke(this.tocke, this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
+                    if (Jarvis.Jarvis.Rotacija(p, this.jarvis_q, this.jarvis_r) <= 0) //rotacija v desno, spremeni q, v naslednjem koraku vmesno stanje
+                    {
+                        this.jarvis_prejsnji_q = this.jarvis_q;
+                        this.jarvis_sprememba = true;
+                        this.jarvis_q = this.jarvis_r;
+
+                    }
+
+                }
+            }
+
+        }
+
+        /// <summary>
         /// Timer ki izvaja korake algoritma.
         /// </summary>
         /// <param name="sender"></param>
@@ -376,177 +569,11 @@ namespace animacija
         {
             if (this.algoritem == "Graham")
             {
-                List<Tocka> pqr = new List<Tocka> { this.rob[this.rob.Count - 2], this.rob[this.rob.Count - 1], this.tocke[this.graham_stevec] };
-                if (this.graham_vmesni) //dodal točko, nariše vmesno stanje
-                {
-                    Risi_crte(this.rob, pqr);
-                    Risi_tocke(this.tocke, this.rob, pqr);
-                    this.graham_vmesni = false;
-                }
-                else if (this.graham_izbrisal) //izbrisal točko, nariše vmesno stanje
-                {
-                    Risi_crte(this.rob, pqr);
-                    Risi_tocke(this.tocke, this.rob, pqr);
-                    this.graham_izbrisal = false;
-                }
-                else
-                {
-                    Brisi_crte(this.rob, pqr, true);
-                    Narisi_legendo();
-
-                    int st = this.graham_stevec;
-                    int dolzina = rob.Count();
-                    Graham_korak(this.tocke);
-                    if (dolzina == rob.Count + 1) //izbrisal točko, v naslednjem koraku nariše vmesno stanje
-                    {
-                        Risi_crte(this.rob, new List<Tocka> { });
-                        Risi_tocke(this.tocke, this.rob, new List<Tocka> { });
-                        this.graham_izbrisal = true;
-                    }
-                    else
-                    {
-                        if (st == this.graham_stevec) //nariše ta korak
-                        {
-                            Risi_crte(this.rob, pqr);
-                            Risi_tocke(this.tocke, this.rob, pqr);
-                        }
-                        else //dodali novo točko v rob, v naslednjem koraku vmesno stanje
-                        {
-                            Risi_crte(this.rob, new List<Tocka> { });
-                            Risi_tocke(this.tocke, this.rob, new List<Tocka> { });
-                            this.graham_vmesni = true;
-                        }
-                    }
-                }
-
-                if (this.graham_stevec == tocke.Count) //prišli do konca, ustavi izvajanje
-                {
-                    timer1.Stop();
-                    this.tece = false;
-                    start.Text = "Zacetek";
-                }
+                Graham_risi_korak();
             }
             else //izvaja jarvis
             {
-                Tocka p = this.rob[this.rob.Count - 1];
-                if (this.jarvis_stevec == 0) //nastavi začeten q, r
-                {
-                    //q, r ne smeta biti enaka p
-                    if (p != this.tocke[0])
-                    {
-                        this.jarvis_q = tocke[0];
-                        if (p != this.tocke[1])
-                        {
-                            this.jarvis_r = tocke[1];
-                            jarvis_stevec = 0;
-                        }
-                        else
-                        {
-                            this.jarvis_r = tocke[2];
-                            jarvis_stevec = 1;
-                        }
-                    }
-                    else
-                    {
-                        this.jarvis_q = tocke[1];
-                        this.jarvis_r = tocke[2];
-                        jarvis_stevec = 1;
-                    }
-                    
-                    Risi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
-                    Risi_tocke(this.tocke, this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
-                }
-
-                if (this.jarvis_stevec == this.tocke.Count - 1)//prišli do konca z iskanjem naslednje točke
-                {
-                    if (!this.rob.Contains(this.jarvis_q)) //ni še v robu, doda
-                    {
-                        if (this.rob.Count >= 2) //ali zbriše črte roba ali ne
-                        {
-                            Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, true);
-                            Narisi_legendo();
-                        }
-                        else
-                        {
-                            Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
-                            Narisi_legendo();
-                        }
-                        
-
-                        this.rob.Add(this.jarvis_q);
-                        this.jarvis_stevec = 0;
-                        Risi_crte(this.rob, new List<Tocka> { });
-                        Risi_tocke(this.tocke, this.rob, new List<Tocka> { });
-                    }
-                    else //naslednja točka že v robu, konča izvajanje
-                    {
-                        //nariše končno stanje
-                        this.jarvis_stevec = 0;
-                        Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, true);
-                        Narisi_legendo();
-                        Risi_crte(this.rob, new List<Tocka> { });
-                        Risi_tocke(this.tocke, this.rob, new List<Tocka> { });
-
-                        timer1.Stop();
-                        this.tece = false;
-                        start.Text = "Zacetek";
-                    }
-                }
-                else //še v procesu iskanja naslednje točke
-                {
-                    if (this.jarvis_sprememba) //nariše vmesno stanje, ko se spremeni točka q
-                    {
-                        this.jarvis_sprememba = false;
-                        Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_prejsnji_q, this.jarvis_q }, false);
-                        Narisi_legendo();
-                    }
-
-                    if (this.tocke[this.jarvis_stevec + 1] == p) //r bi bil enak p, kar ne sme biti
-                    {
-                        if (this.jarvis_stevec + 2 != this.tocke.Count) //p ni zadnja točka v tabeli, lahko preskoči
-                        {
-                            Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
-                            Narisi_legendo();
-                            //preskoči p
-                            this.jarvis_stevec = this.jarvis_stevec + 2;
-                            this.jarvis_r = this.tocke[this.jarvis_stevec];
-
-                            Risi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
-                            Risi_tocke(this.tocke, this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
-
-                            if (Jarvis.Jarvis.Rotacija(p, this.jarvis_q, this.jarvis_r) <= 0) //rotacija v desno, spremeni q, v naslednjem koraku vmesno stanje
-                            {
-                                this.jarvis_prejsnji_q = this.jarvis_q; //da ve v naslednjem koraku katere črte izbrisat
-                                this.jarvis_sprememba = true;
-                                this.jarvis_q = this.jarvis_r;
-                                
-                            }
-                            
-                        }
-                        else //smo na kncu tabele, ustavim iskanje naslednje točke
-                        {
-                            this.jarvis_stevec++;
-                        }
-                    }
-                    else // r ne bi bil enak p
-                    {
-                        Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
-                        Narisi_legendo();
-                        this.jarvis_stevec++;
-                        this.jarvis_r = this.tocke[this.jarvis_stevec];
-                        
-                        Risi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
-                        Risi_tocke(this.tocke, this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
-                        if (Jarvis.Jarvis.Rotacija(p, this.jarvis_q, this.jarvis_r) <= 0) //rotacija v desno, spremeni q, v naslednjem koraku vmesno stanje
-                        {
-                            this.jarvis_prejsnji_q = this.jarvis_q;
-                            this.jarvis_sprememba = true;
-                            this.jarvis_q = this.jarvis_r;
-                            
-                        }
-                        
-                    }
-                }
+                Jarvis_korak_risi();
             }
         }
 
@@ -559,6 +586,8 @@ namespace animacija
         {
             if (!this.tece && start.Text != "Zacetek")
             {
+                
+
                 if (this.algoritem == "Graham") //nariše začetno stanje za graham
                 {
                     Risi_tocke(this.tocke, this.rob, new List<Tocka> { this.rob[this.rob.Count - 2], this.rob[this.rob.Count - 1], this.tocke[this.graham_stevec] });
@@ -571,6 +600,15 @@ namespace animacija
                 }
                 
                 timer1.Interval = int.Parse(hitrost.Text);
+                if (timer1.Interval != 100)
+                {
+                    pospesi.Show();
+                }
+                if (timer1.Interval != 2000)
+                {
+                    upocasni.Show();
+                }
+
                 var t = Task.Delay(timer1.Interval);
                 t.Wait();
                 
@@ -581,11 +619,22 @@ namespace animacija
             {
                 timer1.Start();
                 start.Text = "Stop";
+                if (timer1.Interval != 100)
+                {
+                    pospesi.Show();
+                }
+                if (timer1.Interval != 2000)
+                {
+                    upocasni.Show();
+                }
             }
             else if (start.Text == "Stop") // vstavi izvajanje
             {
                 timer1.Stop();
                 start.Text = "Start";
+                pospesi.Hide();
+                upocasni.Hide();
+
             }
             else //po koncu izvajanja gre na začetno stran
             {
@@ -597,6 +646,30 @@ namespace animacija
             
         }
 
-        
+        private void upocasni_Click(object sender, EventArgs e)
+        {
+            timer1.Interval = timer1.Interval + 100;
+            if (timer1.Interval == 2000)
+            {
+                upocasni.Hide();
+            }
+            else if (timer1.Interval == 200)
+            {
+                pospesi.Show();
+            }
+        }
+
+        private void pospesi_Click(object sender, EventArgs e)
+        {
+            timer1.Interval = timer1.Interval - 100;
+            if (timer1.Interval == 100)
+            {
+                pospesi.Hide();
+            }
+            else if (timer1.Interval == 1900)
+            {
+                upocasni.Show();
+            }
+        }
     }
 }

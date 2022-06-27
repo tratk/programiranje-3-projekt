@@ -38,6 +38,8 @@ namespace animacija
             this.start = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.hitrost = new System.Windows.Forms.TextBox();
+            this.upocasni = new System.Windows.Forms.Button();
+            this.pospesi = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // graham
@@ -106,11 +108,33 @@ namespace animacija
             this.hitrost.Size = new System.Drawing.Size(100, 20);
             this.hitrost.TabIndex = 11;
             // 
+            // upocasni
+            // 
+            this.upocasni.Location = new System.Drawing.Point(95, 13);
+            this.upocasni.Name = "upocasni";
+            this.upocasni.Size = new System.Drawing.Size(75, 23);
+            this.upocasni.TabIndex = 12;
+            this.upocasni.Text = "Upočasni";
+            this.upocasni.UseVisualStyleBackColor = true;
+            this.upocasni.Click += new System.EventHandler(this.upocasni_Click);
+            // 
+            // pospesi
+            // 
+            this.pospesi.Location = new System.Drawing.Point(177, 13);
+            this.pospesi.Name = "pospesi";
+            this.pospesi.Size = new System.Drawing.Size(75, 23);
+            this.pospesi.TabIndex = 13;
+            this.pospesi.Text = "Pospeši";
+            this.pospesi.UseVisualStyleBackColor = true;
+            this.pospesi.Click += new System.EventHandler(this.pospesi_Click);
+            // 
             // Okno
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(984, 611);
+            this.Controls.Add(this.pospesi);
+            this.Controls.Add(this.upocasni);
             this.Controls.Add(this.hitrost);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.start);
@@ -136,6 +160,8 @@ namespace animacija
         private System.Windows.Forms.Button start;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox hitrost;
+        private System.Windows.Forms.Button upocasni;
+        private System.Windows.Forms.Button pospesi;
     }
 }
 
