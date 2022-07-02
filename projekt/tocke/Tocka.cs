@@ -41,7 +41,7 @@ namespace tocke
 
         public override string ToString()
         {
-            return $"x: {this._x}, y: {this._y}";
+            return $"x: {this._x}, y: {this._y}, stevka: {this._stevka}";
         }
 
         public override bool Equals(object obj)

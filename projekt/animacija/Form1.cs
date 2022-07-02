@@ -28,6 +28,8 @@ namespace animacija
         Tocka jarvis_r = new Tocka(0, 0);
         bool jarvis_sprememba = false;
         Tocka jarvis_prejsnji_q = new Tocka(0, 0);
+
+        bool izbiraj_tocke = false;
         public Okno()
         {
             InitializeComponent();
@@ -38,6 +40,11 @@ namespace animacija
             start.Hide();
             pospesi.Hide();
             upocasni.Hide();
+            zacetek.Hide();
+            korak.Hide();
+            opozorilo.Hide();
+            stevec_tock.Hide();
+            label1.Hide();
         }
 
         /// <summary>
@@ -64,28 +71,88 @@ namespace animacija
         {
             if (skrij)
             {
-                label1.Hide();
+                st_tock_label.Hide();
+                st_tock_label1.Hide();
                 st_tock.Hide();
-                graham.Hide();
-                jarvis.Hide();
-                label2.Hide();
+                hitrost_label.Hide();
+                hitrost_label1.Hide();
                 hitrost.Hide();
+                gen_label.Hide();
+                gen_box.Hide();
+                alg_label.Hide();
+                alg_box.Hide();
+                zacni.Hide();
+                opozorilo.Hide();
                 start.Show();
-                
+                zacetek.Show();
+                korak.Show();
                 
             }
             else
             {
                 start.Hide();
                 this.platno.Clear(SystemColors.Control);
-                label1.Show();
+                st_tock_label.Show();
                 st_tock.Show();
-                graham.Show();
-                jarvis.Show();
-                label2.Show();
+                st_tock_label1.Show();
+                hitrost_label.Show();
+                hitrost_label1.Show();
                 hitrost.Show();
-                
+                gen_label.Show();
+                gen_box.Show();
+                alg_label.Show();
+                alg_box.Show();
+                zacni.Show();
+                zacetek.Hide();
+                korak.Hide();
+                upocasni.Hide();
+                pospesi.Hide();
             }
+        }
+
+        /// <summary>
+        /// Preveri vnešene podatke.
+        /// </summary>
+        /// <returns></returns>
+        private string Preveri_podatke()
+        {
+            try
+            {
+                int st = int.Parse(st_tock.Text);
+                if (st < 4 || st > 100)
+                {
+                    return "Število točk mora biti med 4 in 100!";
+                }
+            }
+            catch (Exception)
+            {
+                return "Število točk mora biti celo število!";
+            }
+
+            try
+            {
+                int v = int.Parse(hitrost.Text);
+                if (v < 100 || v > 2000)
+                {
+                    return "Hitrost mora biti med 100 in 2000!";
+                }
+            }
+            catch (Exception)
+            {
+                return "Hitrost mora biti celo število!";
+            }
+
+            if (gen_box.SelectedIndex == -1)
+            {
+                return "Izbrati moraš način generacije točk!";
+            }
+
+            if (alg_box.SelectedIndex == -1)
+            {
+                return "Izbrati moraš algoritem!";
+            }
+            return "OK";
+            
         }
 
         /// <summary>
@@ -134,16 +201,16 @@ namespace animacija
         /// <param name="tocke"></param>
         /// <param name="rob"></param>
         /// <param name="pqr"></param>
-        private void Risi_tocke(List<Tocka> tocke, List<Tocka> rob, List<Tocka> pqr)
+        private void Risi_tocke( List<Tocka> pqr)
         {
 
             SolidBrush pisalo = new SolidBrush(Color.White);
             Font font = new Font("Arial", 5);
             SolidBrush copic = new SolidBrush(Color.Black);
             
-            foreach(Tocka t in tocke)
+            foreach(Tocka t in this.tocke)
             {
-                if (!rob.Contains(t) && !pqr.Contains(t)) //točke, ki niso v robu ali iskalne
+                if (!this.rob.Contains(t) && !pqr.Contains(t)) //točke, ki niso v robu ali iskalne
                 {
                     this.platno.FillEllipse(copic, t.x, t.y, 10, 10);
                     if (t.stevka < 10) //napiše števke v točke
@@ -158,7 +225,7 @@ namespace animacija
                 }
             }
             copic = new SolidBrush(Color.Red);
-            foreach (Tocka t in rob)
+            foreach (Tocka t in this.rob)
             {
                 if (!pqr.Contains(t)) //točke v robu
                 {
@@ -204,17 +271,17 @@ namespace animacija
         /// </summary>
         /// <param name="rob"></param>
         /// <param name="pqr"></param>
-        public void Risi_crte(List<Tocka> rob, List<Tocka> pqr)
+        public void Risi_crte(List<Tocka> pqr)
         {
             Pen svincnik = new Pen(Color.Red, 1);
-            if (rob.Count >= 2) //črte med točkami v robu
+            if (this.rob.Count >= 2) //črte med točkami v robu
             {
                 
-                for (int i = 0; i < rob.Count - 1; i++)
+                for (int i = 0; i < this.rob.Count - 1; i++)
                 {
-                    this.platno.DrawLine(svincnik, rob[i].x + 5, rob[i].y + 5, rob[i + 1].x + 5, rob[i + 1].y + 5);
+                    this.platno.DrawLine(svincnik, this.rob[i].x + 5, this.rob[i].y + 5, this.rob[i + 1].x + 5, this.rob[i + 1].y + 5);
                 }
-                this.platno.DrawLine(svincnik, rob[rob.Count - 1].x + 5, rob[rob.Count - 1].y + 5, rob[0].x + 5, rob[0].y + 5);
+                this.platno.DrawLine(svincnik, this.rob[this.rob.Count - 1].x + 5, this.rob[this.rob.Count - 1].y + 5, this.rob[0].x + 5, this.rob[0].y + 5);
             }
             
             if (pqr.Count != 0) //črte med iskalnimi točkami
@@ -233,14 +300,14 @@ namespace animacija
         /// <param name="rob"></param>
         /// <param name="pqr"></param>
         /// <param name="izbrisi_rob"></param>
-        public void Brisi_crte(List<Tocka> rob, List<Tocka> pqr, bool izbrisi_rob)
+        public void Brisi_crte(List<Tocka> pqr, bool izbrisi_rob)
         {
             Pen svincnik = new Pen(Color.White, 1);
             if (izbrisi_rob) //briše zadnji dve črti v robu
             {
                 int n = rob.Count;
-                this.platno.DrawLine(svincnik, rob[n - 2].x + 5, rob[n - 2].x + 5, rob[n - 1].x + 5, rob[n - 1].y + 5);
-                this.platno.DrawLine(svincnik, rob[n - 1].x + 5, rob[n - 1].y + 5, rob[0].x + 5, rob[0].y + 5);
+                this.platno.DrawLine(svincnik, this.rob[n - 2].x + 5, this.rob[n - 2].x + 5, this.rob[n - 1].x + 5, this.rob[n - 1].y + 5);
+                this.platno.DrawLine(svincnik, this.rob[n - 1].x + 5, this.rob[n - 1].y + 5, this.rob[0].x + 5, this.rob[0].y + 5);
             }
             //briše črte med iskalnimi točkami
             if (pqr.Count != 0)
@@ -287,8 +354,8 @@ namespace animacija
             this.platno.Clear(Color.White);
             Narisi_legendo();
 
-            Risi_tocke(this.tocke, this.rob, new List<Tocka> { });
-            Risi_crte(this.rob, new List<Tocka> {});
+            Risi_tocke(new List<Tocka> { });
+            Risi_crte(new List<Tocka> {});
         }
 
         /// <summary>
@@ -318,7 +385,7 @@ namespace animacija
             this.platno = this.CreateGraphics();
             this.platno.Clear(Color.White);
             Narisi_legendo();
-            Risi_tocke(this.tocke, this.rob, new List<Tocka> { });
+            Risi_tocke(new List<Tocka> { });
         }
 
         /// <summary>
@@ -383,19 +450,19 @@ namespace animacija
             List<Tocka> pqr = new List<Tocka> { this.rob[this.rob.Count - 2], this.rob[this.rob.Count - 1], this.tocke[this.graham_stevec] };
             if (this.graham_vmesni) //dodal točko, nariše vmesno stanje
             {
-                Risi_crte(this.rob, pqr);
-                Risi_tocke(this.tocke, this.rob, pqr);
+                Risi_crte(pqr);
+                Risi_tocke(pqr);
                 this.graham_vmesni = false;
             }
             else if (this.graham_izbrisal) //izbrisal točko, nariše vmesno stanje
             {
-                Risi_crte(this.rob, pqr);
-                Risi_tocke(this.tocke, this.rob, pqr);
+                Risi_crte(pqr);
+                Risi_tocke(pqr);
                 this.graham_izbrisal = false;
             }
             else
             {
-                Brisi_crte(this.rob, pqr, true);
+                Brisi_crte(pqr, true);
                 //Narisi_legendo();
 
                 int st = this.graham_stevec;
@@ -403,21 +470,21 @@ namespace animacija
                 Graham_korak();
                 if (dolzina == rob.Count + 1) //izbrisal točko, v naslednjem koraku nariše vmesno stanje
                 {
-                    Risi_crte(this.rob, new List<Tocka> { });
-                    Risi_tocke(this.tocke, this.rob, new List<Tocka> { });
+                    Risi_crte(new List<Tocka> { });
+                    Risi_tocke(new List<Tocka> { });
                     this.graham_izbrisal = true;
                 }
                 else
                 {
                     if (st == this.graham_stevec) //nariše ta korak
                     {
-                        Risi_crte(this.rob, pqr);
-                        Risi_tocke(this.tocke, this.rob, pqr);
+                        Risi_crte(pqr);
+                        Risi_tocke(pqr);
                     }
                     else //dodali novo točko v rob, v naslednjem koraku vmesno stanje
                     {
-                        Risi_crte(this.rob, new List<Tocka> { });
-                        Risi_tocke(this.tocke, this.rob, new List<Tocka> { });
+                        Risi_crte(new List<Tocka> { });
+                        Risi_tocke(new List<Tocka> { });
                         this.graham_vmesni = true;
                     }
                 }
@@ -429,7 +496,9 @@ namespace animacija
                 pospesi.Hide();
                 upocasni.Hide();
                 this.tece = false;
-                start.Text = "Zacetek";
+                start.Hide();
+                start.Text = "Start";
+                korak.Hide();
             }
         }
 
@@ -460,8 +529,8 @@ namespace animacija
                     jarvis_stevec = 1;
                 }
 
-                Risi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
-                Risi_tocke(this.tocke, this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
+                Risi_crte(new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
+                Risi_tocke(new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
             }
 
             if (this.jarvis_stevec == this.tocke.Count - 1)//prišli do konca z iskanjem naslednje točke
@@ -470,35 +539,37 @@ namespace animacija
                 {
                     if (this.rob.Count >= 2) //ali zbriše črte roba ali ne
                     {
-                        Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, true);
+                        Brisi_crte(new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, true);
                         //Narisi_legendo();
                     }
                     else
                     {
-                        Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
+                        Brisi_crte(new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
                         //Narisi_legendo();
                     }
 
 
                     this.rob.Add(this.jarvis_q);
                     this.jarvis_stevec = 0;
-                    Risi_crte(this.rob, new List<Tocka>());
-                    Risi_tocke(this.tocke, this.rob, new List<Tocka>());
+                    Risi_crte(new List<Tocka>());
+                    Risi_tocke(new List<Tocka>());
                 }
                 else //naslednja točka že v robu, konča izvajanje
                 {
                     //nariše končno stanje
                     this.jarvis_stevec = 0;
-                    Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, true);
+                    Brisi_crte(new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, true);
                     //Narisi_legendo();
-                    Risi_crte(this.rob, new List<Tocka>());
-                    Risi_tocke(this.tocke, this.rob, new List<Tocka>());
+                    Risi_crte(new List<Tocka>());
+                    Risi_tocke(new List<Tocka>());
 
                     timer1.Stop();
                     pospesi.Hide();
                     upocasni.Hide();
                     this.tece = false;
-                    start.Text = "Zacetek";
+                    start.Hide();
+                    start.Text = "Start";
+                    korak.Hide();
                 }
             }
             else //še v procesu iskanja naslednje točke
@@ -506,7 +577,7 @@ namespace animacija
                 if (this.jarvis_sprememba) //nariše vmesno stanje, ko se spremeni točka q
                 {
                     this.jarvis_sprememba = false;
-                    Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_prejsnji_q, this.jarvis_q }, false);
+                    Brisi_crte(new List<Tocka> { p, this.jarvis_prejsnji_q, this.jarvis_q }, false);
                     //Narisi_legendo();
                 }
 
@@ -514,14 +585,14 @@ namespace animacija
                 {
                     if (this.jarvis_stevec + 2 != this.tocke.Count) //p ni zadnja točka v tabeli, lahko preskoči
                     {
-                        Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
+                        Brisi_crte(new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
                         //Narisi_legendo();
                         //preskoči p
                         this.jarvis_stevec = this.jarvis_stevec + 2;
                         this.jarvis_r = this.tocke[this.jarvis_stevec];
 
-                        Risi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
-                        Risi_tocke(this.tocke, this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
+                        Risi_crte(new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
+                        Risi_tocke(new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
 
                         if (Jarvis.Jarvis.Rotacija(p, this.jarvis_q, this.jarvis_r) <= 0) //rotacija v desno, spremeni q, v naslednjem koraku vmesno stanje
                         {
@@ -534,19 +605,19 @@ namespace animacija
                     }
                     else //smo na kncu tabele, ustavim iskanje naslednje točke
                     {
-                        Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
+                        Brisi_crte(new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
                         this.jarvis_stevec++;
                     }
                 }
                 else // r ne bi bil enak p
                 {
-                    Brisi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
+                    Brisi_crte(new List<Tocka> { p, this.jarvis_q, this.jarvis_r }, false);
                     //Narisi_legendo();
                     this.jarvis_stevec++;
                     this.jarvis_r = this.tocke[this.jarvis_stevec];
 
-                    Risi_crte(this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
-                    Risi_tocke(this.tocke, this.rob, new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
+                    Risi_crte(new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
+                    Risi_tocke(new List<Tocka> { p, this.jarvis_q, this.jarvis_r });
                     if (Jarvis.Jarvis.Rotacija(p, this.jarvis_q, this.jarvis_r) <= 0) //rotacija v desno, spremeni q, v naslednjem koraku vmesno stanje
                     {
                         this.jarvis_prejsnji_q = this.jarvis_q;
@@ -584,19 +655,19 @@ namespace animacija
         /// <param name="e"></param>
         private void start_Click(object sender, EventArgs e)
         {
-            if (!this.tece && start.Text != "Zacetek")
+            if (!this.tece)
             {
                 
 
                 if (this.algoritem == "Graham") //nariše začetno stanje za graham
                 {
-                    Risi_tocke(this.tocke, this.rob, new List<Tocka> { this.rob[this.rob.Count - 2], this.rob[this.rob.Count - 1], this.tocke[this.graham_stevec] });
-                    Risi_crte(this.rob, new List<Tocka> { this.rob[this.rob.Count - 2], this.rob[this.rob.Count - 1], this.tocke[this.graham_stevec] });
+                    Risi_tocke(new List<Tocka> { this.rob[this.rob.Count - 2], this.rob[this.rob.Count - 1], this.tocke[this.graham_stevec] });
+                    Risi_crte(new List<Tocka> { this.rob[this.rob.Count - 2], this.rob[this.rob.Count - 1], this.tocke[this.graham_stevec] });
                 }
                 else //nariše začetno stanje za jarvis
                 {
-                    Risi_tocke(this.tocke, this.rob, new List<Tocka> {});
-                    Risi_crte(this.rob, new List<Tocka> {  });
+                    Risi_tocke(new List<Tocka> {});
+                    Risi_crte(new List<Tocka> {  });
                 }
                 
                 timer1.Interval = int.Parse(hitrost.Text);
@@ -627,6 +698,7 @@ namespace animacija
                 {
                     upocasni.Show();
                 }
+                korak.Hide();
             }
             else if (start.Text == "Stop") // vstavi izvajanje
             {
@@ -634,14 +706,7 @@ namespace animacija
                 start.Text = "Start";
                 pospesi.Hide();
                 upocasni.Hide();
-
-            }
-            else //po koncu izvajanja gre na začetno stran
-            {
-                Skrij_zacetno_stran(false);
-                this.rob = new List<Tocka>();
-                this.tocke = new List<Tocka>();
-                start.Text = "Start";
+                korak.Show();
             }
             
         }
@@ -669,6 +734,169 @@ namespace animacija
             else if (timer1.Interval == 1900)
             {
                 upocasni.Show();
+            }
+        }
+
+        private void zacetek_Click(object sender, EventArgs e)
+        {
+            timer1.Stop();
+            this.rob = new List<Tocka>();
+            this.tocke = new List<Tocka>();
+            start.Text = "Start";
+            Skrij_zacetno_stran(false);
+        }
+
+        private void korak_Click(object sender, EventArgs e)
+        {
+            if (this.algoritem == "Graham")
+            {
+                Graham_risi_korak();
+            }
+            else
+            {
+                Jarvis_korak_risi();
+            }
+        }
+
+        private void zacni_Click(object sender, EventArgs e)
+        {
+            string op = Preveri_podatke();
+            if (op.Equals("OK"))
+            {
+                if (alg_box.SelectedIndex == 0)
+                {
+                    this.algoritem = "Jarvis";
+                }
+                else
+                {
+                    this.algoritem = "Graham";
+                }
+
+                if (gen_box.SelectedIndex == 0)
+                {
+                    Generiraj();
+
+                    Tocka min_tocka = new Tocka(float.MaxValue, float.MaxValue);
+                    foreach (Tocka t in this.tocke)
+                    {
+                        if (t < min_tocka)
+                        {
+                            min_tocka = t;
+                        }
+                    }
+
+                    
+                    if (this.algoritem == "Graham")
+                    {
+                        this.tocke = Graham.Graham.Uredi_kot(this.tocke, min_tocka);
+                    }
+                    for (int i = 0; i < tocke.Count; i++)
+                    {
+                        this.tocke[i] = new Tocka(this.tocke[i].x, this.tocke[i].y, i + 1);
+                        
+                    }
+                    
+                    if (this.algoritem == "Graham")
+                    {
+                        this.rob.Add(tocke[0]);
+                        this.rob.Add(tocke[1]);
+                    }
+                    else
+                    {
+                        this.rob.Add(min_tocka);
+                    }
+                    this.graham_stevec = 2;
+                    this.jarvis_stevec = 0;
+
+                    Skrij_zacetno_stran(true);
+                    this.platno = this.CreateGraphics();
+                    this.platno.Clear(Color.White);
+                    Narisi_legendo();
+                    Risi_tocke(new List<Tocka>());
+                    Risi_crte(new List<Tocka>());
+                }
+                else
+                {
+                    this.izbiraj_tocke = true;
+                    label1.Show();
+                    stevec_tock.Show();
+                    stevec_tock.Text = st_tock.Text;
+                    Skrij_zacetno_stran(true);
+                    zacetek.Hide();
+                    start.Hide();
+                    korak.Hide();
+                    this.platno = this.CreateGraphics();
+                    this.platno.Clear(Color.White);
+                    Narisi_legendo();
+                }
+            }
+            else
+            {
+                opozorilo.Text = op;
+                opozorilo.Show();
+            }
+        }
+
+        private void Okno_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (izbiraj_tocke)
+            {
+                if (e.Y > 90 && e.Y < 600 && e.X < 980)
+                {
+                    int st = int.Parse(stevec_tock.Text);
+                    Tocka t = new Tocka(((int)e.X / 10)*10, ((int)e.Y / 10)*10, int.Parse(st_tock.Text) - st + 1);
+                    if (!this.tocke.Contains(t))
+                    {
+                        this.tocke.Add(t);
+                        Risi_tocke(new List<Tocka>());
+                        st--;
+                        stevec_tock.Text = st.ToString();
+                        if (st == 0)
+                        {
+                            izbiraj_tocke = false;
+                            label1.Hide();
+                            stevec_tock.Hide();
+                            zacetek.Show();
+                            start.Show();
+                            korak.Show();
+
+                            Tocka min_tocka = new Tocka(float.MaxValue, float.MaxValue);
+                            foreach (Tocka t1 in this.tocke)
+                            {
+                                if (t1 < min_tocka)
+                                {
+                                    min_tocka = t1;
+                                }
+                            }
+
+
+                            if (this.algoritem == "Graham")
+                            {
+                                this.tocke = Graham.Graham.Uredi_kot(this.tocke, min_tocka);
+                            }
+                            for (int i = 0; i < tocke.Count; i++)
+                            {
+                                this.tocke[i] = new Tocka(this.tocke[i].x, this.tocke[i].y, i + 1);
+
+                            }
+
+                            if (this.algoritem == "Graham")
+                            {
+                                this.rob.Add(tocke[0]);
+                                this.rob.Add(tocke[1]);
+                            }
+                            else
+                            {
+                                this.rob.Add(min_tocka);
+                            }
+
+                            this.graham_stevec = 2;
+                            this.jarvis_stevec = 0;
+                            Risi_tocke(new List<Tocka>());
+                            Risi_crte(new List<Tocka>());
+                        }
+                    }
+                }
             }
         }
     }
